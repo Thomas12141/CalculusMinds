@@ -4,14 +4,14 @@ import java.awt.event.*;
 import java.util.Objects;
 import javax.swing.border.*;
 
-public class GUI implements ActionListener {
-    JFrame frame;
-    JPanel panel;
-    JLabel labelInput, labelOutput;
-    JTextField funcOutput, funcInput;
-    JButton buttonCalc, buttonClear;
-    Font font = new Font("Open Sans Pro", Font.ITALIC, 20);
-    Font labelFont = new Font("Open Sans Pro", Font.ITALIC, 15);
+public class GUI {
+    private JFrame frame;
+    private JPanel panel;
+    private JLabel labelInput, labelOutput;
+    private JTextField funcOutput, funcInput;
+    private JButton buttonCalc, buttonClear;
+    private Font font = new Font("Open Sans Pro", Font.ITALIC, 20);
+    private Font labelFont = new Font("Open Sans Pro", Font.ITALIC, 15);
 
     //Konstruktor
     public GUI(){
@@ -47,6 +47,22 @@ public class GUI implements ActionListener {
         buttonCalc = createCustomButton("Calculate");
         buttonClear = createCustomButton("Clear");
 
+        buttonCalc.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String inputText = funcInput.getText();
+                String result = calculateFunction(inputText);
+                funcOutput.setText(result);
+            }
+        });
+        buttonClear.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                funcInput.setText("");
+                funcOutput.setText("");
+            }
+        });
+
         panel.setLayout(new GridLayout(0, 1, 7, 7));
         panel.add(buttonCalc);
         panel.add(buttonClear);
@@ -77,8 +93,6 @@ public class GUI implements ActionListener {
         textField.setBorder(compoundBorder);
 
         //graue Umrandung
-        //Border greyLineBorder = BorderFactory.createLineBorder(Color.GRAY);
-        //textField.setBorder(greyLineBorder);
         textField.setFont(font);
         return textField;
     }
@@ -98,31 +112,12 @@ public class GUI implements ActionListener {
         Border compoundBorder = BorderFactory.createCompoundBorder(new GUIRoundedBorder(10, Color.DARK_GRAY),
                 null);
         button.setBorder(compoundBorder);
-
         button.setFont(font);
-        button.addActionListener(this);
         return button;
     }
 
     public static void main(String[] args) {
         new GUI();
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-
-        if(e.getSource() == buttonCalc){
-            String inputText = funcInput.getText();
-
-            //TODO: implement calculateFunction
-            String result = calculateFunction(inputText);
-            funcOutput.setText(result);
-
-        } else if(e.getSource() == buttonClear){
-
-            funcInput.setText("");
-            funcOutput.setText("");
-        }
     }
 
     //TODO
