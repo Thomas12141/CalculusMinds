@@ -12,7 +12,35 @@ public class ArgumentFactory {
             String[] temp = argument.split("\\+");
             Argument left = ArgumentFactory.buildArgument(temp[0]);
             Argument right = ArgumentFactory.buildArgument(temp[1]);
-            return new Plus(left, right);
+            Argument result = new Plus(left, right);
+            for (int i = 2; i < temp.length; i++) {
+                result = new Plus(result, ArgumentFactory.buildArgument(temp[i]));
+            }
+            return result;
+        }else if(argument.contains("-")){
+            String[] temp = argument.split("-");
+            Argument left = ArgumentFactory.buildArgument(temp[0]);
+            Argument right = ArgumentFactory.buildArgument(temp[1]);
+            return new Minus(left, right);
+        }else if(argument.contains("*")){
+            String[] temp = argument.split("\\*");
+            Argument left = ArgumentFactory.buildArgument(temp[0]);
+            Argument right = ArgumentFactory.buildArgument(temp[1]);
+            Argument result = new Multiplication(left, right);
+            for (int i = 2; i < temp.length; i++) {
+                result = new Multiplication(result, ArgumentFactory.buildArgument(temp[i]));
+            }
+            return result;
+        }else if(argument.contains("/")){
+            String[] temp = argument.split("/");
+            Argument left = ArgumentFactory.buildArgument(temp[0]);
+            Argument right = ArgumentFactory.buildArgument(temp[1]);
+            return new Devision(left, right);
+        }else if(argument.contains("^")){
+            String[] temp = argument.split("\\^");
+            Argument left = ArgumentFactory.buildArgument(temp[0]);
+            Argument right = ArgumentFactory.buildArgument(temp[1]);
+            return new Power(left, right);
         }else if(doublePattern.matcher(argument).matches()){
             return new DoubleValue(argument);
         }
