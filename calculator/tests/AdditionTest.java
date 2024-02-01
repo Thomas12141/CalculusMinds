@@ -8,6 +8,22 @@ public class AdditionTest {
         Calculator calculator = new Calculator("3+2");
         double returned = calculator.solve();
         double expected = 5;
-        assertEquals(returned, expected);
+        assertEquals(expected, returned);
+    }
+
+    @Test
+    public void simpleAddition1(){
+        Calculator calculator = new Calculator("3+2+3");
+        double returned = calculator.solve();
+        double expected = 8;
+        assertEquals(expected, returned);
+    }
+
+    @Test
+    public void simpleAddition3(){
+        Calculator calculator = new Calculator("3+-2");
+        double returned = calculator.solve();
+        double expected = 1;
+        assertEquals(expected, returned);
     }
 }

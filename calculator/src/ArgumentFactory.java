@@ -9,12 +9,57 @@ public class ArgumentFactory {
     //not finished, must be done iterative through the tree of arguments
     public static Argument buildArgument(String argument){
         if(argument.contains("+")){
-            String[] temp = argument.split("\\+");
-            Argument left = ArgumentFactory.buildArgument(temp[0]);
-            Argument right = ArgumentFactory.buildArgument(temp[1]);
-            return new Plus(left, right);
+            return buildArgumentBinaryOperation("\\+", argument);
+        }else if(argument.contains("-")&&!argument.startsWith("-")){
+            return buildArgumentBinaryOperation("-", argument);
+        }else if(argument.contains("*")){
+            return buildArgumentBinaryOperation("\\*", argument);
+        }else if(argument.contains("/")){
+            return buildArgumentBinaryOperation("/", argument);
+        }else if(argument.contains("^")){
+            return buildArgumentBinaryOperation("\\^", argument);
         }else if(doublePattern.matcher(argument).matches()){
             return new DoubleValue(argument);
+        }
+        throw new IllegalArgumentException("This argument insnt valid");
+    }
+
+    private static Argument buildArgumentBinaryOperation(String operation, String argument){
+        String[] temp = argument.split(operation);
+        Argument left = ArgumentFactory.buildArgument(temp[0]);
+        Argument right = ArgumentFactory.buildArgument(temp[1]);
+        Argument result;
+        switch (operation){
+            case ("\\+"):
+                 result = new Plus(left, right);
+                for (int i = 2; i < temp.length; i++) {
+                    result = new Plus(result, ArgumentFactory.buildArgument(temp[i]));
+                }
+                return result;
+            case ("-"):
+                result = new Minus(left, right);
+                for (int i = 2; i < temp.length; i++) {
+                    result = new Minus(result, ArgumentFactory.buildArgument(temp[i]));
+                }
+                return result;
+            case ("\\*"):
+                result = new Multiplication(left, right);
+                for (int i = 2; i < temp.length; i++) {
+                    result = new Multiplication(result, ArgumentFactory.buildArgument(temp[i]));
+                }
+                return result;
+            case ("/"):
+                result = new Devision(left, right);
+                for (int i = 2; i < temp.length; i++) {
+                    result = new Devision(result, ArgumentFactory.buildArgument(temp[i]));
+                }
+                return result;
+            case ("\\^"):
+                result = new Power(left, right);
+                for (int i = 2; i < temp.length; i++) {
+                    result = new Power(result, ArgumentFactory.buildArgument(temp[i]));
+                }
+                return result;
         }
         throw new IllegalArgumentException("This argument insnt valid");
     }
