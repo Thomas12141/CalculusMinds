@@ -55,9 +55,9 @@ public class ArgumentFactory {
                 }
                 return result;
             case ("\\^"):
-                result = new Power(left, right);
-                for (int i = 2; i < temp.length; i++) {
-                    result = new Power(result, ArgumentFactory.buildArgument(temp[i]));
+                result = new Power(ArgumentFactory.buildArgument(temp[temp.length-2]), ArgumentFactory.buildArgument(temp[temp.length-1]));
+                for (int i = temp.length-3; i >= 0; i--) {
+                    result = new Power(ArgumentFactory.buildArgument(temp[i]), result);
                 }
                 return result;
         }
