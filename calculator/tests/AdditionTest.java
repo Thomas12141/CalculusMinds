@@ -26,4 +26,21 @@ public class AdditionTest {
         double expected = 1;
         assertEquals(expected, returned);
     }
+
+    @Test
+    public void simpleAddition4(){
+        Calculator calculator = new Calculator("3-+2"); //failed, array angelegt mit nur temp[0] besetzt
+        double returned = calculator.solve();
+        double expected = 1;
+        assertEquals(expected, returned);
+    }
+
+    @Test
+    public void simpleAddition5(){
+        Calculator calculator = new Calculator("3--2"); //failed, ["3", "", "2"] leeres feld im array
+        double returned = calculator.solve();
+        double expected = 5;
+        assertEquals(expected, returned);
+    }
+
 }
