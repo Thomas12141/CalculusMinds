@@ -37,14 +37,29 @@ public class ArgumentFactory {
         }
 
         if(from != start + 1 || to != end - 1){
+            int pos = 0;
+            String operation = null;
             if(argument.contains("+") && argument.indexOf("+")<from){
-                return buildArgumentBinaryOperation("\\+", argument);
-            }else if(argument.contains("+") && argument.indexOf("+")>to){
-                return buildArgumentBinaryOperation("\\+", argument);
+                pos = argument.indexOf("+");
+                operation = "+";
+            }else if(argument.contains("+") && argument.lastIndexOf("+")>to){
+                pos = argument.indexOf("+");
+                operation = "+";
             }else if(argument.contains("*") && argument.indexOf("*")<from){
-                return buildArgumentBinaryOperation("\\*", argument);
-            }else if(argument.contains("*") && argument.indexOf("*")>to){
-                return buildArgumentBinaryOperation("\\*", argument);
+                pos = argument.indexOf("*");
+                operation = "*";
+            }else if(argument.contains("*") && argument.lastIndexOf("*")>to){
+                pos = argument.indexOf("*");
+                operation = "*";
+            }
+            if(operation.equals("+")){
+                Argument left = ArgumentFactory.buildArgument(argument.substring(0, pos));
+                Argument right = ArgumentFactory.buildArgument(argument.substring(pos + 1));
+                return new Plus(left, right);
+            }else if(operation.equals("*")){
+                Argument left = ArgumentFactory.buildArgument(argument.substring(0, pos));
+                Argument right = ArgumentFactory.buildArgument(argument.substring(pos + 1));
+                return new Multiplication(left, right);
             }
         }
         return new Brackets(ArgumentFactory.buildArgument(argument.substring(from , to + 1)));
