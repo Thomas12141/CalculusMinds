@@ -59,4 +59,20 @@ public class BracketsTest {
         double expected = 18;
         assertEquals(expected, returned);
     }
+
+    @Test
+    public void SimpleBrackets8(){
+        Calculator calculator = new Calculator("3 * ((2*3)) + (3*2)");
+        double returned = calculator.solve();
+        double expected = 24;
+        assertEquals(expected, returned);
+    }
+
+    @Test
+    public void SimpleBrackets9(){
+        Calculator calculator = new Calculator("3 * ((2*3)) * (3*2)");
+        double returned = calculator.solve();
+        double expected = 24;
+        assertEquals(expected, returned);
+    }
 }
