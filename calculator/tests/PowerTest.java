@@ -13,7 +13,7 @@ public class PowerTest {
     }
 
     @Test
-    public void SimpleMultiplication2(){
+    public void SimplePower2(){
         Calculator calculator = new Calculator("2^3^2");
         double returned = calculator.solve();
         double expected = Math.pow(2.0,Math.pow(3.0, 2.0));

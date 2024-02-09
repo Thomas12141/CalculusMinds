@@ -8,7 +8,9 @@ public class ArgumentFactory {
 
     //not finished, must be done iterative through the tree of arguments
     public static Argument buildArgument(String argument){
-        if(argument.contains("+")){
+        if(argument.contains("(")){
+            return buildArgumentBracketContained(argument, 0, argument.length()-1);
+        }else if(argument.contains("+")){
             return buildArgumentBinaryOperation("\\+", argument);
         }else if(argument.contains("-")&&!argument.startsWith("-")){
             return buildArgumentBinaryOperation("-", argument);
@@ -23,7 +25,30 @@ public class ArgumentFactory {
         }
         throw new IllegalArgumentException("This argument insnt valid");
     }
+    private static Argument buildArgumentBracketContained(String argument, int start, int end){
+        int from = argument.indexOf("(", start + 1);
+        int to = argument.lastIndexOf(")", end - 1);
+        if(from == -1 && to == -1){
+            return new Brackets(ArgumentFactory.buildArgument(argument.substring(start + 1, end)));
+        }
 
+        if(from == -1 || to == -1){
+            throw new IllegalArgumentException("Brackets arent valid.");
+        }
+
+        if(from != start + 1 || to != end - 1){
+            if(argument.contains("+") && argument.indexOf("+")<from){
+                return buildArgumentBinaryOperation("\\+", argument);
+            }else if(argument.contains("+") && argument.indexOf("+")>to){
+                return buildArgumentBinaryOperation("\\+", argument);
+            }else if(argument.contains("*") && argument.indexOf("*")<from){
+                return buildArgumentBinaryOperation("\\*", argument);
+            }else if(argument.contains("*") && argument.indexOf("*")>to){
+                return buildArgumentBinaryOperation("\\*", argument);
+            }
+        }
+        return new Brackets(ArgumentFactory.buildArgument(argument.substring(from , to + 1)));
+    }
     private static Argument buildArgumentBinaryOperation(String operation, String argument){
         String[] temp = argument.split(operation);
         Argument left = ArgumentFactory.buildArgument(temp[0]);
