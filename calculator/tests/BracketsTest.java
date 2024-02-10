@@ -70,9 +70,9 @@ public class BracketsTest {
 
     @Test
     public void SimpleBrackets9(){
-        Calculator calculator = new Calculator("3 * ((2*3)) * (3*2)");
+        Calculator calculator = new Calculator("3 * (((2*3))) * (3*2)");
         double returned = calculator.solve();
-        double expected = 24;
+        double expected = 108;
         assertEquals(expected, returned);
     }
 }
