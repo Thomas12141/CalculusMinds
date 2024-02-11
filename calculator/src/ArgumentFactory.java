@@ -10,7 +10,7 @@ public class ArgumentFactory {
     private static String regexSin = "^sin[0-9]+$";
     private static String regexCos = "^cos[0-9]+$";
     private static String regexTan = "^tan[0-9]+$";
-    private static String regexCot = "^cotan[0-9]+$";
+    private static String regexCot = "^cot[0-9]+$";
 
     /**
      * @author Thomas Fidorin
