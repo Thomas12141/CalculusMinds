@@ -11,7 +11,7 @@ public class Devision implements Argument{
     public double calculate() {
         double divisor = right.calculate();
         if(divisor == 0){
-            throw new IllegalArgumentException("Cant divide by 0");
+            throw new ArithmeticException("Cant divide by 0");
         }
         return left.calculate() / divisor;
     }
