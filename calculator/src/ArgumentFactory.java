@@ -7,10 +7,6 @@ public class ArgumentFactory {
     private static String regexInteger = "^-?\\d+$";
     private static String regexDouble = regexDecimal + "|" + regexInteger;
     private static Pattern doublePattern = Pattern.compile(regexDouble);
-    private static String regexSin = "^sin[0-9]+$";
-    private static String regexCos = "^cos[0-9]+$";
-    private static String regexTan = "^tan[0-9]+$";
-    private static String regexCot = "^cotan[0-9]+$";
 
     /**
      * @author Thomas Fidorin
@@ -31,13 +27,13 @@ public class ArgumentFactory {
             return buildArgumentBinaryOperation("/", argument);
         }else if(argument.contains("^")){//The fifth operation in the tree, it will be the four before the last one to be made by the calculation.
             return buildArgumentBinaryOperation("\\^", argument);
-        }else if(argument.matches(regexSin)){
+        }else if(argument.contains("sin")){
             return buildArgumentBinaryOperation("sin", argument);
-        }else if(argument.matches(regexCos)){
+        }else if(argument.contains("cos")){
             return buildArgumentBinaryOperation("cos", argument);
-        }else if(argument.matches(regexTan)){
+        }else if(argument.contains("tan")){
             return buildArgumentBinaryOperation("tan", argument);
-        }else if(argument.matches(regexCot)){
+        }else if(argument.contains("cot")){
             return buildArgumentBinaryOperation("cot", argument);
         }else if(argument.contains("log")){
             return buildArgumentBinaryOperation("log", argument);
@@ -46,23 +42,24 @@ public class ArgumentFactory {
         }
         throw new IllegalArgumentException("This argument isn't valid");
     }
+
     /*This Method checks first, if there are addition or multiplication outside any bracket, then it splits on this operation.
      */
     private static Argument buildArgumentBracketContained(String argument){
         char[] operations = {'+', '-', '*', '/', '^'};
-        ArrayList<int[]> positions = getBracketsPosition(argument);//Getting the bracket positions in the argument, so we won't split in any bracket. An example (2+3)-> "(2" + "3)", is wrong. But
-                                                                   //(2+3) + (3*2) -> "(2+3)" + "(3*2)"
+        ArrayList<int[]> positions = getBracketsPosition(argument);
+
         for (char c : operations){
-            int positionArrayIterator = 0;//The position to check in the positions list.
-            for (int i = 0; i < argument.length(); i++) {//Iterating to check any occurrence of + outside any brackets then splitting on it.
-                if (positionArrayIterator<positions.size() && i == positions.get(positionArrayIterator)[0]) {//checking if it is part of bracket, when yes, skipping it.
+            int positionArrayIterator = 0;
+            for (int i = 0; i < argument.length(); i++) {
+                if (positionArrayIterator<positions.size() && i == positions.get(positionArrayIterator)[0]) {
                     i = positions.get(positionArrayIterator)[1] + 1;
                     if(i>=argument.length()){
                         break;
                     }
                     positionArrayIterator++;
                 }
-                if(argument.charAt(i)==c){
+                if (argument.charAt(i)==c) {
                     Argument left = ArgumentFactory.buildArgument(argument.substring(0, i));
                     Argument right = ArgumentFactory.buildArgument(argument.substring(i + 1));
                     switch (c){
@@ -75,8 +72,24 @@ public class ArgumentFactory {
                 }
             }
         }
+
+        int openParenthesisIndex = argument.indexOf("(");
+        if(openParenthesisIndex >= 3 && Character.isLetter(argument.charAt(openParenthesisIndex-1))) {
+            String functionName = argument.substring(argument.indexOf("(")-3, openParenthesisIndex);
+
+            Argument child = ArgumentFactory.buildArgument(argument.substring(openParenthesisIndex+1, argument.indexOf(")")));
+
+            switch (functionName) {
+                case ("sin"): return new Sine(child);
+                case ("cos"): return new Cosine(child);
+                case ("tan"): return new Tangent(child);
+                case ("cot"): return new Cotangent(child);
+                case ("log"): return new Logarithm(child);
+            }
+        }
         return new Brackets(ArgumentFactory.buildArgument(argument.substring(argument.indexOf("(")+1 , argument.lastIndexOf(")"))));//No operation to split on.
     }
+
     /* Given an argument and operation, the method splits on this operation the argument, this method is only for binary operation given the argument in between.
      */
     private static Argument buildArgumentBinaryOperation(String operation, String argument){
@@ -97,12 +110,6 @@ public class ArgumentFactory {
         switch (operation){
             case ("\\+"):
                  result = new Plus(left, right);
-                for (int i = 2; i < temp.length; i++) {
-                    result = new Plus(result, ArgumentFactory.buildArgument(temp[i]));
-                }
-                return result;
-            case ("--"):
-                result = new Plus(left, right);
                 for (int i = 2; i < temp.length; i++) {
                     result = new Plus(result, ArgumentFactory.buildArgument(temp[i]));
                 }
