@@ -6,6 +6,9 @@ public class Cotangent implements Argument{
 
     @Override
     public double calculate() {
+        if(Math.abs(Math.sin(child.calculate()))<0.0001){
+            throw new ArithmeticException("Tan is not defined.");
+        }
         return 1.0 / Math.tan(child.calculate()); //child in Radians
     }
 

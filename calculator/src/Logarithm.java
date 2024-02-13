@@ -7,6 +7,9 @@ public class Logarithm implements Argument {
 
     @Override
     public double calculate() {
+        if(child.calculate()<=0){
+            throw new ArithmeticException("This log isn't defined.");
+        }
         return Math.log(child.calculate());
     }
 

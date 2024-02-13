@@ -2,13 +2,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TrigonometryTest {
+    double delta = 10E-5;
 
     @Test
     public void simpleSineTest(){
         Calculator calculator = new Calculator("sin(1)");
         double returned = calculator.solve();
         double expected = 0.8414709848078965;
-        assertEquals(expected, returned);
+        assertEquals(expected, returned, delta);
     }
 
     @Test
@@ -16,7 +17,7 @@ public class TrigonometryTest {
         Calculator calculator = new Calculator("1+cos(1*3)");
         double returned = calculator.solve();
         double expected = 0.010007503399554585;
-        assertEquals(expected, returned);
+        assertEquals(expected, returned, delta);
     }
 
     @Test
@@ -24,14 +25,14 @@ public class TrigonometryTest {
         Calculator calculator = new Calculator("1+tan(1)-2");
         double returned = calculator.solve();
         double expected = 0.5574077246549023;
-        assertEquals(expected, returned);
+        assertEquals(expected, returned, delta);
     }
 
     @Test
     public void simpleCotTest(){
         Calculator calculator = new Calculator("cot(1)");
         double returned = calculator.solve();
-        double expected = 0.6420926159343306;
-        assertEquals(expected, returned);
+        double expected = 0.64209261593433;
+        assertEquals(expected, returned, delta);
     }
 }

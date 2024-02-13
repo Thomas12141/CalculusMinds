@@ -47,12 +47,12 @@ public class ArgumentFactory {
      */
     private static Argument buildArgumentBracketContained(String argument){
         char[] operations = {'+', '-', '*', '/', '^'};
-        ArrayList<int[]> positions = getBracketsPosition(argument);
-
+        ArrayList<int[]> positions = getBracketsPosition(argument);//Getting the bracket positions in the argument, so we won't split in any bracket. An example (2+3)-> "(2" + "3)", is wrong. But
+                                                                   //(2+3) + (3*2) -> "(2+3)" + "(3*2)"
         for (char c : operations){
-            int positionArrayIterator = 0;
-            for (int i = 0; i < argument.length(); i++) {
-                if (positionArrayIterator<positions.size() && i == positions.get(positionArrayIterator)[0]) {
+            int positionArrayIterator = 0;//The position to check in the positions list.
+            for (int i = 0; i < argument.length(); i++) {//Iterating to check any occurrence of the actual operation outside any brackets then splitting on it.
+                if (positionArrayIterator<positions.size() && i == positions.get(positionArrayIterator)[0]) {//checking if it is part of bracket, when yes, skipping it.
                     i = positions.get(positionArrayIterator)[1] + 1;
                     if(i>=argument.length()){
                         break;
