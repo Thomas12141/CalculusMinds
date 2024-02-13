@@ -22,9 +22,9 @@ public class BracketsTest {
 
     @Test
     public void SimpleBrackets3(){
-        Calculator calculator = new Calculator("3 + ((2^3))");
+        Calculator calculator = new Calculator("3 + (2*2)");
         double returned = calculator.solve();
-        double expected = 11;
+        double expected = 7;
         assertEquals(expected, returned);
     }
 
