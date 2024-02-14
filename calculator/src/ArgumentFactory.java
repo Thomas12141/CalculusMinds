@@ -8,6 +8,8 @@ public class ArgumentFactory {
     private static String regexDouble = regexDecimal + "|" + regexInteger;
     private static Pattern doublePattern = Pattern.compile(regexDouble);
 
+    private static Pattern variablePattern = Pattern.compile("^[a-zA-Z]$");
+
     private static ArrayList<ArrayList<Character>> operations;
 
     /**
@@ -18,12 +20,15 @@ public class ArgumentFactory {
      */
     public static Argument buildArgument(String argument){
         init();
-        if(!doublePattern.matcher(argument).matches()){//In case of brackets.
-            return buildArgumentBracketContained(argument);
+        if(argument.contains("=")){
+            return buildArgumentAssignment(argument);
         }else if(doublePattern.matcher(argument).matches()){//A number, it is always a leaf.
             return new DoubleValue(argument);
+        }else if(variablePattern.matcher(argument).matches()){
+            return new Variable(argument);
+        }else {
+            return buildArgumentBracketContained(argument);
         }
-        throw new IllegalArgumentException("This argument isn't valid");
     }
 
     /*This Method checks first, if there are addition or multiplication outside any bracket, then it splits on this operation.
@@ -61,6 +66,9 @@ public class ArgumentFactory {
                 if (c.contains(argument.charAt(i))&&(i==0||!c.contains(argument.charAt(i-1)))) {
                     if(argument.charAt(i)=='+'&&i==0){
                         return buildArgument(argument.substring(1));
+                    }
+                    if(i==0&&argument.charAt(i)=='-'){
+                        return new UnaryMinus(ArgumentFactory.buildArgument(argument.substring(i + 1)));
                     }
                     Argument left = ArgumentFactory.buildArgument(argument.substring(0, i));
                     Argument right = ArgumentFactory.buildArgument(argument.substring(i + 1));
@@ -151,5 +159,16 @@ public class ArgumentFactory {
         operations.get(1).add('/');
         operations.add(new ArrayList<>());
         operations.get(2).add('^');
+    }
+
+    private static Argument buildArgumentAssignment(String assignment){
+        String toSaveTo = assignment.substring(0, assignment.indexOf("="));
+        String expression = assignment.substring(assignment.indexOf("=")+1);
+        Argument expressionArgument = buildArgument(expression);
+        if(variablePattern.matcher(toSaveTo).matches()){
+            Maps.variables.put(toSaveTo, expressionArgument.calculate());
+            return expressionArgument;
+        }
+        throw new IllegalArgumentException("This assignment isn't valid.");
     }
 }

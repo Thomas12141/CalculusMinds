@@ -27,4 +27,12 @@ public class MinusTest {
         double expected = -3;
         assertEquals(expected, returned);
     }
+
+    @Test
+    public void ComplexMinus1(){
+        Calculator calculator = new Calculator("-cos(0)");
+        double returned = calculator.solve();
+        double expected = -1;
+        assertEquals(expected, returned);
+    }
 }
