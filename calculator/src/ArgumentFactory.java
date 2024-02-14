@@ -32,15 +32,21 @@ public class ArgumentFactory {
      */
     private static Argument buildArgumentBracketContained(String argument){
         ArrayList<int[]> positions = getBracketsPosition(argument);
-
+        Argument result;
         //Getting the bracket positions in the argument, so we won't split in any bracket. An example (2+3)-> "(2" + "3)", is wrong. But (2+3) + (3*2) -> "(2+3)" + "(3*2)"
         for (ArrayList<Character> operatorList : operators){
             if(operatorList.getFirst().equals('^')){
                 //process exponentiation
-                return processExponentiation(argument, positions);
+                result = processExponentiation(argument, positions);
+                if (result!= null){
+                    return result;
+                }
             } else {
                 //process addition, subtraction, multiplication and division
-                return processArithmeticOperators(argument, positions, operatorList);
+                result = processArithmeticOperators(argument, positions, operatorList);
+                if (result!= null){
+                    return result;
+                }
             }
         }
         //process trigonometric functions and logarithms
@@ -52,7 +58,7 @@ public class ArgumentFactory {
         if(!positions.isEmpty()){
             return new Brackets(ArgumentFactory.buildArgument(argument.substring(argument.indexOf("(")+1 , argument.lastIndexOf(")"))));
         }
-        /*if(argument.contains("cos") || argument.contains("sin") || argument.contains("tan") || argument.contains("cot") || argument.contains("log")) {
+        if(argument.contains("cos") || argument.contains("sin") || argument.contains("tan") || argument.contains("cot") || argument.contains("log")) {
             Argument child = ArgumentFactory.buildArgument(argument.substring(3));
 
             switch (argument.substring(0, 3)) {
@@ -62,7 +68,7 @@ public class ArgumentFactory {
                 case ("cot"): return new Cotangent(child);
                 case ("log"): return new Logarithm(child);
             }
-        }*/
+        }
         throw new IllegalArgumentException("This argument isn't valid");
     }
 
