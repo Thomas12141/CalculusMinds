@@ -8,6 +8,10 @@ public class ArgumentFactory {
     private static String regexDouble = regexDecimal + "|" + regexInteger;
     private static Pattern doublePattern = Pattern.compile(regexDouble);
 
+    private static Pattern variablePattern = Pattern.compile("^[a-zA-Z]$");
+
+    private static ArrayList<ArrayList<Character>> operations;
+
     /**
      * @author Thomas Fidorin
      * @author Elvira Wied
@@ -15,66 +19,71 @@ public class ArgumentFactory {
      * @return A tree of instances representing the mathematical argument passed to this method.
      */
     public static Argument buildArgument(String argument){
-        if(argument.contains("(")){//In case of brackets.
-            return buildArgumentBracketContained(argument);
-        }else if(argument.contains("+")){//The first operation in the tree, it will be the last one to be made by the calculation.
-            return buildArgumentBinaryOperation("\\+", argument);
-        }else if(argument.contains("-")&&!argument.startsWith("-")){//The second operation in the tree, it will be the one before the last one to be made by the calculation.
-            return buildArgumentBinaryOperation("-", argument);
-        }else if(argument.contains("*")){//The third operation in the tree, it will be the two before the last one to be made by the calculation.
-            return buildArgumentBinaryOperation("\\*", argument);
-        }else if(argument.contains("/")){//The fourth operation in the tree, it will be the three before the last one to be made by the calculation.
-            return buildArgumentBinaryOperation("/", argument);
-        }else if(argument.contains("^")){//The fifth operation in the tree, it will be the four before the last one to be made by the calculation.
-            return buildArgumentBinaryOperation("\\^", argument);
-        }else if(argument.contains("sin")){
-            return buildArgumentBinaryOperation("sin", argument);
-        }else if(argument.contains("cos")){
-            return buildArgumentBinaryOperation("cos", argument);
-        }else if(argument.contains("tan")){
-            return buildArgumentBinaryOperation("tan", argument);
-        }else if(argument.contains("cot")){
-            return buildArgumentBinaryOperation("cot", argument);
-        }else if(argument.contains("log")){
-            return buildArgumentBinaryOperation("log", argument);
+        init();
+        if(argument.contains("=")){
+            return buildArgumentAssignment(argument);
         }else if(doublePattern.matcher(argument).matches()){//A number, it is always a leaf.
             return new DoubleValue(argument);
+        }else if(variablePattern.matcher(argument).matches()){
+            return new Variable(argument);
+        }else {
+            return buildArgumentBracketContained(argument);
         }
-        throw new IllegalArgumentException("This argument isn't valid");
     }
 
     /*This Method checks first, if there are addition or multiplication outside any bracket, then it splits on this operation.
      */
     private static Argument buildArgumentBracketContained(String argument){
-        char[] operations = {'+', '-', '*', '/', '^'};
         ArrayList<int[]> positions = getBracketsPosition(argument);//Getting the bracket positions in the argument, so we won't split in any bracket. An example (2+3)-> "(2" + "3)", is wrong. But
                                                                    //(2+3) + (3*2) -> "(2+3)" + "(3*2)"
-        for (char c : operations){
-            int positionArrayIterator = 0;//The position to check in the positions list.
-            for (int i = 0; i < argument.length(); i++) {//Iterating to check any occurrence of the actual operation outside any brackets then splitting on it.
-                if (positionArrayIterator<positions.size() && i == positions.get(positionArrayIterator)[0]) {//checking if it is part of bracket, when yes, skipping it.
-                    i = positions.get(positionArrayIterator)[1] + 1;
-                    if(i>=argument.length()){
+        for (ArrayList<Character> c : operations){
+            if(c.getFirst().equals('^')){
+                int positionArrayIterator = 0;//The position to check in the positions list.
+                for (int i = 0; i < argument.length(); i++) {//Iterating to check any occurrence of the actual operation outside any brackets then splitting on it.
+                    if (positionArrayIterator < positions.size() && i == positions.get(positionArrayIterator)[0]) {//checking if it is part of bracket, when yes, skipping it.
+                        i = positions.get(positionArrayIterator)[1] + 1;
+                        if (i > argument.length()-1) {
+                            break;
+                        }
+                        positionArrayIterator++;
+                    }
+                    if (argument.charAt(i)=='^'){
+                        Argument left = ArgumentFactory.buildArgument(argument.substring(0, i));
+                        Argument right = ArgumentFactory.buildArgument(argument.substring(i + 1));
+                        return new Power(left, right);
+                    }
+                }
+            }
+            int positionArrayIterator = positions.size()-1;//The position to check in the positions list.
+            for (int i = argument.length()-1; i >=0 ; i--) {//Iterating to check any occurrence of the actual operation outside any brackets then splitting on it.
+                if (positionArrayIterator>=0 && i == positions.get(positionArrayIterator)[1]) {//checking if it is part of bracket, when yes, skipping it.
+                    i = positions.get(positionArrayIterator)[0] - 1;
+                    if(i < 0){
                         break;
                     }
-                    positionArrayIterator++;
+                    positionArrayIterator--;
                 }
-                if (argument.charAt(i)==c) {
+                if (c.contains(argument.charAt(i))&&(i==0||!c.contains(argument.charAt(i-1)))) {
+                    if(argument.charAt(i)=='+'&&i==0){
+                        return buildArgument(argument.substring(1));
+                    }
+                    if(i==0&&argument.charAt(i)=='-'){
+                        return new UnaryMinus(ArgumentFactory.buildArgument(argument.substring(i + 1)));
+                    }
                     Argument left = ArgumentFactory.buildArgument(argument.substring(0, i));
                     Argument right = ArgumentFactory.buildArgument(argument.substring(i + 1));
-                    switch (c){
+                    switch (argument.charAt(i)){
                         case ('+'): return new Plus(left, right);
                         case ('-'): return new Minus(left, right);
                         case ('*'): return new Multiplication(left, right);
                         case ('/'): return new Devision(left, right);
-                        case ('^'): return new Power(left, right);
                     }
                 }
             }
         }
 
         int openParenthesisIndex = argument.indexOf("(");
-        if(openParenthesisIndex >= 3 && Character.isLetter(argument.charAt(openParenthesisIndex-1))) {
+        if((openParenthesisIndex >= 3 && Character.isLetter(argument.charAt(openParenthesisIndex-1)))) {
             String functionName = argument.substring(argument.indexOf("(")-3, openParenthesisIndex);
 
             Argument child = ArgumentFactory.buildArgument(argument.substring(openParenthesisIndex+1, argument.indexOf(")")));
@@ -87,75 +96,27 @@ public class ArgumentFactory {
                 case ("log"): return new Logarithm(child);
             }
         }
-        return new Brackets(ArgumentFactory.buildArgument(argument.substring(argument.indexOf("(")+1 , argument.lastIndexOf(")"))));//No operation to split on.
-    }
-
-    /* Given an argument and operation, the method splits on this operation the argument, this method is only for binary operation given the argument in between.
-     */
-    private static Argument buildArgumentBinaryOperation(String operation, String argument){
-        Argument left = null, right = null, child = null, result = null;
-        String[] temp;
-
-        if(operation.contains("cos") || operation.contains("sin") || operation.contains("tan") || operation.contains("cot") || operation.contains("log")){
-            temp = argument.split(operation);
-            if (temp.length > 1) {
-                child = ArgumentFactory.buildArgument(temp[1].trim()); //Index1 enthält Zahl nach "cos", ...
-            }
-        } else {
-            temp = argument.split(operation);
-            left = ArgumentFactory.buildArgument(temp[0]);
-            right = ArgumentFactory.buildArgument(temp[1]);
+        if(!positions.isEmpty()){
+            return new Brackets(ArgumentFactory.buildArgument(argument.substring(argument.indexOf("(")+1 , argument.lastIndexOf(")"))));//No operation to split on.
         }
-
-        switch (operation){
-            case ("\\+"):
-                 result = new Plus(left, right);
-                for (int i = 2; i < temp.length; i++) {
-                    result = new Plus(result, ArgumentFactory.buildArgument(temp[i]));
-                }
-                return result;
-            case ("-"):
-                result = new Minus(left, right);
-                for (int i = 2; i < temp.length; i++) {
-                    result = new Minus(result, ArgumentFactory.buildArgument(temp[i]));
-                }
-                return result;
-            case ("\\*"):
-                result = new Multiplication(left, right);
-                for (int i = 2; i < temp.length; i++) {
-                    result = new Multiplication(result, ArgumentFactory.buildArgument(temp[i]));
-                }
-                return result;
-            case ("/"):
-                result = new Devision(left, right);
-                for (int i = 2; i < temp.length; i++) {
-                    result = new Devision(result, ArgumentFactory.buildArgument(temp[i]));
-                }
-                return result;
-            case ("\\^"):
-                result = new Power(ArgumentFactory.buildArgument(temp[temp.length-2]), ArgumentFactory.buildArgument(temp[temp.length-1]));
-                for (int i = temp.length-3; i >= 0; i--) {
-                    result = new Power(ArgumentFactory.buildArgument(temp[i]), result);
-                }
-                return result;
-            case ("sin"):
-                result = new Sine(child);
-                return result;
-            case ("cos"):
-                result = new Cosine(child);
-                return result;
-            case ("tan"):
-                result = new Tangent(child);
-                return result;
-            case ("cot"):
-                result = new Cotangent(child);
-                return result;
-            case ("log"):
-                result = new Logarithm(child);
-                return result;
+        if(argument.contains("cos") || argument.contains("sin") || argument.contains("tan") || argument.contains("cot") || argument.contains("log")) {
+            Argument child = ArgumentFactory.buildArgument(argument.substring(3));
+            switch (argument.substring(0, 3)) {
+                case ("sin"):
+                    return new Sine(child);
+                case ("cos"):
+                    return new Cosine(child);
+                case ("tan"):
+                    return new Tangent(child);
+                case ("cot"):
+                    return new Cotangent(child);
+                case ("log"):
+                    return new Logarithm(child);
+            }
         }
         throw new IllegalArgumentException("This argument isn't valid");
     }
+
     /* A method giving back a list with two-dimensional arrays representing the start and end of any outer brackets.
      */
     private static ArrayList<int[]> getBracketsPosition(String argument){
@@ -186,5 +147,28 @@ public class ArgumentFactory {
             }
         }
         return result;
+    }
+
+    private static void init(){
+        operations = new ArrayList<>();
+        operations.add(new ArrayList<>());
+        operations.get(0).add('+');
+        operations.get(0).add('-');
+        operations.add(new ArrayList<>());
+        operations.get(1).add('*');
+        operations.get(1).add('/');
+        operations.add(new ArrayList<>());
+        operations.get(2).add('^');
+    }
+
+    private static Argument buildArgumentAssignment(String assignment){
+        String toSaveTo = assignment.substring(0, assignment.indexOf("="));
+        String expression = assignment.substring(assignment.indexOf("=")+1);
+        Argument expressionArgument = buildArgument(expression);
+        if(variablePattern.matcher(toSaveTo).matches()){
+            Maps.variables.put(toSaveTo, expressionArgument.calculate());
+            return expressionArgument;
+        }
+        throw new IllegalArgumentException("This assignment isn't valid.");
     }
 }

@@ -24,7 +24,7 @@ public class TrigonometryTest {
     public void simpleTanTest(){
         Calculator calculator = new Calculator("1+tan(1)-2");
         double returned = calculator.solve();
-        double expected = 0.5574077246549023;
+        double expected = 0.5574;
         assertEquals(expected, returned, delta);
     }
 
