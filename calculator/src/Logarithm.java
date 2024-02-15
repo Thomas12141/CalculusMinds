@@ -1,5 +1,4 @@
-public class Logarithm implements Argument {
-    private final Argument child;
+public class Logarithm extends AbstractUnaryArgument {
 
     public Logarithm(Argument child){
         this.child = child;

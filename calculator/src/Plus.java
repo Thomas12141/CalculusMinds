@@ -1,7 +1,4 @@
-public class Plus implements Argument{
-    private Argument left;
-    private Argument right;
-
+public class Plus extends AbstractBinaryArgument {
     public Plus(Argument left, Argument right){
         this.left = left;
         this.right = right;
@@ -16,4 +13,5 @@ public class Plus implements Argument{
     public String toString() {
         return left.toString() + "+" + right.toString();
     }
+
 }

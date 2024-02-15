@@ -1,5 +1,4 @@
-public class Cosine implements Argument {
-    private final Argument child;
+public class Cosine extends AbstractUnaryArgument {
     public Cosine(Argument child){
         this.child = child;
     }

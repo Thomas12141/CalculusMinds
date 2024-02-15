@@ -1,5 +1,4 @@
-public class Cotangent implements Argument{
-    private final Argument child;
+public class Cotangent extends AbstractUnaryArgument{
     public Cotangent(Argument child){
         this.child = child;
     }
