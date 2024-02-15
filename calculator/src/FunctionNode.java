@@ -39,11 +39,13 @@ public class FunctionNode extends Argument{
             switch (className){
                 case ("Plus") : return a-> left.apply(a) + right.apply(a);
                 case ("Multiplication") : return a-> left.apply(a) * right.apply(a);
+                case ("Minus") : return a-> left.apply(a) - right.apply(a);
             }
 
         }else if(functionTree instanceof AbstractUnaryArgument){
             Function<Double[], Double> child = createFunctionCall(((AbstractUnaryArgument) functionTree).getChild());
             switch (className){
+                case ("UnaryMinus") : return a-> -child.apply(a);
                 case ("Brackets") : return a-> child.apply(a);
             }
         }
