@@ -1,5 +1,4 @@
-public class UnaryMinus implements Argument{
-    private Argument child;
+public class UnaryMinus extends AbstractUnaryArgument{
 
     public UnaryMinus(Argument child){
         this.child = child;

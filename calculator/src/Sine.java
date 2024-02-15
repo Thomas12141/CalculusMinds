@@ -1,5 +1,4 @@
-public class Sine implements Argument {
-    private final Argument child;
+public class Sine extends AbstractUnaryArgument {
     public Sine(Argument child){
         this.child = child;
     }

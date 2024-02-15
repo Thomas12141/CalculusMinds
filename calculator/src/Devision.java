@@ -1,6 +1,4 @@
-public class Devision implements Argument{
-    private Argument left;
-    private Argument right;
+public class Devision extends AbstractBinaryArgument{
 
     public Devision(Argument left, Argument right){
         this.left = left;

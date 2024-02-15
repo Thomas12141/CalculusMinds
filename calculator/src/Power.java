@@ -1,6 +1,4 @@
-public class Power implements Argument{
-    private Argument left;
-    private Argument right;
+public class Power extends AbstractBinaryArgument{
 
     public Power(Argument left, Argument right){
         this.left = left;

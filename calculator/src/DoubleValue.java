@@ -1,4 +1,4 @@
-public class DoubleValue implements Argument{
+public class DoubleValue extends Argument{
     private double number;
     public DoubleValue(String number){
         this.number = Double.parseDouble(number);

@@ -1,5 +1,4 @@
-public class Tangent implements Argument {
-    private final Argument child;
+public class Tangent extends AbstractUnaryArgument {
     public Tangent(Argument child){
         this.child = child;
     }

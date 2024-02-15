@@ -1,5 +1,5 @@
-public class Brackets implements Argument{
-    private Argument child;
+public class Brackets extends AbstractUnaryArgument {
+
     public Brackets(Argument child){
         this.child = child;
     }

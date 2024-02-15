@@ -1,6 +1,4 @@
-public class Minus implements Argument{
-    private Argument left;
-    private Argument right;
+public class Minus extends AbstractBinaryArgument{
 
     public Minus(Argument left, Argument right){
         this.left = left;

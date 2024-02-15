@@ -1,6 +1,4 @@
-public class Multiplication implements Argument{
-    private Argument left;
-    private Argument right;
+public class Multiplication extends AbstractBinaryArgument{
 
     public Multiplication(Argument left, Argument right){
         this.left = left;
