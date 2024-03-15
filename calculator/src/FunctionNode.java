@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 public class FunctionNode extends Argument{
-    private java.util.function.Function<Double[], Double> functionCall;
-    private String functionName;
-    private Argument functionTree;
-    private ArrayList<String> variables;
+    private final Function<Double[], Double> functionCall;
+    private final String functionName;
+    private final Argument functionTree;
+    private final ArrayList<String> variables;
     public FunctionNode(String functionName, Argument functionTree, ArrayList<String> variables) throws OperationNotSupportedException {
         this.functionTree = functionTree.clone();
         this.functionName = functionName;
@@ -40,6 +40,8 @@ public class FunctionNode extends Argument{
                 case ("Plus") : return a-> left.apply(a) + right.apply(a);
                 case ("Multiplication") : return a-> left.apply(a) * right.apply(a);
                 case ("Minus") : return a-> left.apply(a) - right.apply(a);
+                case ("Division") : return a-> left.apply(a) / right.apply(a);
+                case ("Power") : return a-> Math.pow(left.apply(a), right.apply(a));
             }
 
         }else if(functionTree instanceof AbstractUnaryArgument){
@@ -47,6 +49,20 @@ public class FunctionNode extends Argument{
             switch (className){
                 case ("UnaryMinus") : return a-> -child.apply(a);
                 case ("Brackets") : return a-> child.apply(a);
+                case ("Cotangent") : return a-> 1.0 / Math.tan(child.apply(a));
+                case ("Tangent") : return a-> Math.tan(child.apply(a));
+                case ("Sine") : return a-> Math.sin(child.apply(a));
+                case ("Logarithm") : return a-> Math.log(child.apply(a));
+                case ("Cosine") : return a-> Math.cos(child.apply(a));
+            }
+        }else{
+            switch (functionTree){
+                case FunctionNode f : return a-> f.calculate(a);
+                case DoubleValue d : return a-> d.calculate();
+                case Variable v : return a-> v.calculate();
+                case FunctionVariable fv : return a-> a[fv.getPosition()];
+                default:
+                    throw new OperationNotSupportedException("This class must be implemented.");
             }
         }
         throw new OperationNotSupportedException("This class must be implemented.");

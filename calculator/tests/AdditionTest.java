@@ -1,10 +1,12 @@
 import org.junit.jupiter.api.Test;
 
+import javax.naming.OperationNotSupportedException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AdditionTest {
     @Test
-    public void simpleAddition(){
+    public void simpleAddition() throws OperationNotSupportedException {
         Calculator calculator = new Calculator("3+2");
         double returned = calculator.solve();
         double expected = 5;
@@ -12,7 +14,7 @@ public class AdditionTest {
     }
 
     @Test
-    public void simpleAddition1(){
+    public void simpleAddition1() throws OperationNotSupportedException {
         Calculator calculator = new Calculator("3+2+3");
         double returned = calculator.solve();
         double expected = 8;
@@ -20,7 +22,7 @@ public class AdditionTest {
     }
 
     @Test
-    public void simpleAddition3(){
+    public void simpleAddition3() throws OperationNotSupportedException {
         Calculator calculator = new Calculator("3+-2");
         double returned = calculator.solve();
         double expected = 1;
@@ -28,7 +30,7 @@ public class AdditionTest {
     }
 
     @Test
-    public void simpleAddition4(){
+    public void simpleAddition4() throws OperationNotSupportedException {
         Calculator calculator = new Calculator("3-+2"); //failed, array angelegt mit nur temp[0] besetzt
         double returned = calculator.solve();
         double expected = 1;
@@ -36,7 +38,7 @@ public class AdditionTest {
     }
 
     @Test
-    public void simpleAddition5(){
+    public void simpleAddition5() throws OperationNotSupportedException {
         Calculator calculator = new Calculator("3--2"); //failed, ["3", "", "2"] leeres feld im array
         double returned = calculator.solve();
         double expected = 5;

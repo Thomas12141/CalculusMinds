@@ -6,7 +6,7 @@ public class Variable extends Argument {
 
     @Override
     public double calculate() {
-        return Maps.variables.get(variableString); //child in Radians
+        return Maps.variables.get(variableString);
     }
 
     @Override
