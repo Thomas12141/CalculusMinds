@@ -1,16 +1,21 @@
+import javax.naming.OperationNotSupportedException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Stack;
 import java.util.regex.Pattern;
 public class ArgumentFactory {
 
-    private static String regexDecimal = "^-?\\d*\\.\\d+$";
-    private static String regexInteger = "^-?\\d+$";
-    private static String regexDouble = regexDecimal + "|" + regexInteger;
-    private static Pattern doublePattern = Pattern.compile(regexDouble);
+    private final static String regexDecimal = "^-?\\d*\\.\\d+$";
+    private final static String regexInteger = "^-?\\d+$";
+    private final static String regexDouble = regexDecimal + "|" + regexInteger;
+    private final static Pattern doublePattern = Pattern.compile(regexDouble);
+    private final static Pattern variablePattern = Pattern.compile("^[a-zA-Z]$");
 
-    private static Pattern variablePattern = Pattern.compile("^[a-zA-Z]$");
+    private final static Pattern functionPattern = Pattern.compile("^[a-zA-Z]+'*\\([a-zA-Z](,[a-zA-Z])*\\)$");
 
     private static ArrayList<ArrayList<Character>> operations;
+
+    private static ArrayList<String> functionVariables;
 
     /**
      * @author Thomas Fidorin
@@ -18,14 +23,23 @@ public class ArgumentFactory {
      * @param argument The string representation of a mathematical argument.
      * @return A tree of instances representing the mathematical argument passed to this method.
      */
-    public static Argument buildArgument(String argument){
+    public static Argument buildArgument(String argument) throws OperationNotSupportedException {
         init();
-        if(argument.contains("=")){
+        if(functionPattern.matcher(argument).matches()){
+            return Maps.functions.get(argument.substring(0, argument.indexOf("(")));
+        } else if(argument.contains("=")){
             return buildArgumentAssignment(argument);
         }else if(doublePattern.matcher(argument).matches()){//A number, it is always a leaf.
             return new DoubleValue(argument);
         }else if(variablePattern.matcher(argument).matches()){
-            return new Variable(argument);
+            if(functionVariables==null) return new Variable(argument);
+            int position = -1;
+            for (int i = 0; i<functionVariables.size(); i++){
+                if(functionVariables.get(i).equals(argument)){
+                    position = i;
+                }
+            }
+            return new FunctionVariable(argument, position);
         }else {
             return buildArgumentBracketContained(argument);
         }
@@ -33,7 +47,7 @@ public class ArgumentFactory {
 
     /*This Method checks first, if there are addition or multiplication outside any bracket, then it splits on this operation.
      */
-    private static Argument buildArgumentBracketContained(String argument){
+    private static Argument buildArgumentBracketContained(String argument) throws OperationNotSupportedException {
         ArrayList<int[]> positions = getBracketsPosition(argument);//Getting the bracket positions in the argument, so we won't split in any bracket. An example (2+3)-> "(2" + "3)", is wrong. But
                                                                    //(2+3) + (3*2) -> "(2+3)" + "(3*2)"
         for (ArrayList<Character> c : operations){
@@ -81,7 +95,6 @@ public class ArgumentFactory {
                 }
             }
         }
-
         int openParenthesisIndex = argument.indexOf("(");
         if((openParenthesisIndex >= 3 && Character.isLetter(argument.charAt(openParenthesisIndex-1)))) {
             String functionName = argument.substring(argument.indexOf("(")-3, openParenthesisIndex);
@@ -122,8 +135,7 @@ public class ArgumentFactory {
     private static ArrayList<int[]> getBracketsPosition(String argument){
         ArrayList<int[]> result = new ArrayList<>();
         Stack<Integer> stack = new Stack<>();
-        int from = 0;
-        int to = 0;
+        int from, to;
         for (int i = 0; i < argument.length(); i++) {
             char c = argument.charAt(i);
             if(c == ')'){
@@ -152,8 +164,8 @@ public class ArgumentFactory {
     private static void init(){
         operations = new ArrayList<>();
         operations.add(new ArrayList<>());
-        operations.get(0).add('+');
-        operations.get(0).add('-');
+        operations.getFirst().add('+');
+        operations.getFirst().add('-');
         operations.add(new ArrayList<>());
         operations.get(1).add('*');
         operations.get(1).add('/');
@@ -161,14 +173,29 @@ public class ArgumentFactory {
         operations.get(2).add('^');
     }
 
-    private static Argument buildArgumentAssignment(String assignment){
+    private static Argument buildArgumentAssignment(String assignment) throws OperationNotSupportedException {
         String toSaveTo = assignment.substring(0, assignment.indexOf("="));
         String expression = assignment.substring(assignment.indexOf("=")+1);
-        Argument expressionArgument = buildArgument(expression);
-        if(variablePattern.matcher(toSaveTo).matches()){
+        if(functionPattern.matcher(toSaveTo).matches()){
+            functionVariables = buildVariableList(toSaveTo.substring(toSaveTo.indexOf("(")));
+            Argument expressionArgument = buildArgument(expression);
+            String functionName = toSaveTo.substring(0, toSaveTo.indexOf("("));
+            FunctionNode functionNode = new FunctionNode(functionName, expressionArgument, functionVariables);
+            Maps.functions.put(functionName, functionNode);
+            functionVariables = null;
+            return expressionArgument;
+        }
+        else if(variablePattern.matcher(toSaveTo).matches()){
+            Argument expressionArgument = buildArgument(expression);
             Maps.variables.put(toSaveTo, expressionArgument.calculate());
             return expressionArgument;
         }
         throw new IllegalArgumentException("This assignment isn't valid.");
+    }
+
+    private static ArrayList<String> buildVariableList(String variables){
+        variables = variables.substring(1, variables.length()-1);
+        String[] variablesArr = variables.split(",");
+        return new ArrayList<>(Arrays.asList(variablesArr));
     }
 }

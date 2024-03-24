@@ -1,9 +1,10 @@
+import javax.naming.OperationNotSupportedException;
 import java.util.ArrayList;
 
 public class Calculator {
-    private ArrayList<Argument> arguments = new ArrayList<>();
+    private final ArrayList<Argument> arguments = new ArrayList<>();
 
-    public Calculator(String input){
+    public Calculator(String input) throws OperationNotSupportedException {
         input = input.replace(" ","");
         String[] argumentStrings = input.split(";");
         for(String argument : argumentStrings){
