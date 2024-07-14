@@ -9,4 +9,12 @@ public class AbstractBinaryArgument extends Argument {
     public Argument getRight() {
         return right;
     }
+
+    @Override
+    public Argument clone() {
+        AbstractBinaryArgument self = (AbstractBinaryArgument) super.clone();
+        self.left = this.left.clone();
+        self.right = this.right.clone();
+        return self;
+    }
 }
